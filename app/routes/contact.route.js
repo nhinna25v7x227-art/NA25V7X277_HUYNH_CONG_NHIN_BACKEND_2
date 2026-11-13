@@ -8,6 +8,7 @@ router.route("/")
     .post(contacts.create)
     .delete(contacts.deleteAll);
 
+// Lưu ý: Route "/favorite" phải nằm TRƯỚC route "/:id"
 router.route("/favorite")
     .get(contacts.findAllFavorite);
 

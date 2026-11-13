@@ -47,18 +47,24 @@ class ContactService {
         });
     }
 
-    // 4. Tìm theo ID
+  // 4. Tìm theo ID (Hỗ trợ cả số nguyên, chuỗi và ObjectId)
     async findById(id) {
+        let queryId = id;
+        // Nếu là chuỗi số (ví dụ "1"), chuyển nó về dạng số nguyên 1 để khớp với MongoDB
+        if (!isNaN(id)) {
+            queryId = Number(id);
+        } else if (ObjectId.isValid(id)) {
+            queryId = new ObjectId(id);
+        }
+
         return await this.Contact.findOne({
-            _id: ObjectId.isValid(id) ? new ObjectId(id) : null,
+            _id: queryId,
         });
     }
-
     // 5. Cập nhật theo ID
     async update(id, payload) {
-        const filter = {
-            _id: ObjectId.isValid(id) ? new ObjectId(id) : null,
-        };
+        let queryId = !isNaN(id) ? Number(id) : (ObjectId.isValid(id) ? new ObjectId(id) : id);
+        const filter = { _id: queryId };
         const update = this.extractContactData(payload);
         const result = await this.Contact.findOneAndUpdate(
             filter,
@@ -68,10 +74,10 @@ class ContactService {
         return result.value || result;
     }
 
-    // 6. Xóa theo ID
     async delete(id) {
+        let queryId = !isNaN(id) ? Number(id) : (ObjectId.isValid(id) ? new ObjectId(id) : id);
         const result = await this.Contact.findOneAndDelete({
-            _id: ObjectId.isValid(id) ? new ObjectId(id) : null,
+            _id: queryId,
         });
         return result.value || result;
     }
